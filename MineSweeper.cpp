@@ -3,6 +3,9 @@
 #include "MineSweeper.h"
 using namespace std;
 
+#define SavePath	"\\SaveGame.msg"
+#define MineWidth   30
+
 HINSTANCE hInst;
 bool playing = false;
 
@@ -378,8 +381,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int wmId = LOWORD(wParam);
             switch (wmId)
             {
-            case IDM_NEW:
-                /**/Game = GameSession(19, 19, 50);
+            case IDM_Classic:
+                Game = GameSession(8, 8, 10);
+                playing = true;
+                GetWindowRect(hWnd, &Rect);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
+                InvalidateRect(hWnd, NULL, false);
+                break;
+            case IDM_Newbie:
+                Game = GameSession(9, 9, 10);
+                playing = true;
+                GetWindowRect(hWnd, &Rect);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
+                InvalidateRect(hWnd, NULL, false);
+                break;
+            case IDM_Amateur:
+                Game = GameSession(16, 16, 40);
+                playing = true;
+                GetWindowRect(hWnd, &Rect);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
+                InvalidateRect(hWnd, NULL, false);
+                break;
+            case IDM_Experienced:
+                Game = GameSession(30, 16, 99);
+                playing = true;
+                GetWindowRect(hWnd, &Rect);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
+                InvalidateRect(hWnd, NULL, false);
+                break;
+            case IDM_MySelection:
+                Game = GameSession(19, 19, 50);
                 playing = true;
                 GetWindowRect(hWnd, &Rect);
                 MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
