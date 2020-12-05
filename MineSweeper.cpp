@@ -3,11 +3,21 @@
 #include "MineSweeper.h"
 using namespace std;
 
-#define SavePath	"\\SaveGame.msg"
+#define SavePath	"\SaveGame.msg"
+#define StatsPath	"\Stats.mst"
 #define MineWidth   30
 
 HINSTANCE hInst;
 bool playing = false;
+bool DrawingStats = false;
+bool NewGame = false;
+int TimerId;
+
+HWND hButtonClassic;
+HWND hButtonNewbie;
+HWND hButtonAmateur;
+HWND hButtonExperienced;
+HWND hButtonMySelection;
 
 HBITMAP MS0;
 HBITMAP MS1;
@@ -70,7 +80,7 @@ public:
         {
             int posX = rand() % width;
             int posY = rand() % height;
-            if ((width*height <= 100 && posX != X && posY != Y) || (width * height > 100 && (abs(posX-X)>1 || abs(posY - Y) > 1)))
+            if (abs(posX - X) > 1 || abs(posY - Y) > 1)//((width*height <= 100 && posX != X && posY != Y) || (width * height > 100 && (abs(posX-X)>1 || abs(posY - Y) > 1)))
             {
                 if (Real[posY][posX] != 9)
                 {
@@ -103,21 +113,27 @@ public:
             Place(X, Y);
             Count();
         }
-        if (Field[Y][X] != 11)
+        if (Field[Y][X] != 15)
         {
             if (Real[Y][X] == 9)
             {
                 Field[Y][X] = 13;
+                steps++;
                 return false;
             }
             else
             {
-                Field[Y][X] = Real[Y][X];
-                if (Real[Y][X] == 0)
-                    Open(X, Y);
-                return true;
+                if (Field[Y][X] != Real[Y][X])
+                {
+                    Field[Y][X] = Real[Y][X];
+                    steps++;
+                    if (Real[Y][X] == 0)
+                        Open(X, Y);
+                    return true;
+                }
             }
         }
+        return true;
     }
 
     void Open(int X, int Y)
@@ -143,6 +159,7 @@ public:
             {
             case 10:
                 Field[Y][X] = 15;
+                steps++;
                 break;
             case 11:
                 Field[Y][X] = 10;
@@ -171,6 +188,7 @@ public:
         }
         if (flags == mines || !wrfl)
             return false;
+        return true;
     }
 
     void Save()
@@ -202,7 +220,12 @@ public:
         SF.open(SavePath, fstream::in);
         if (SF.is_open())
         {
-            try
+            if (SF.peek() == std::ifstream::traits_type::eof())
+            {
+                SF.close();
+                return false;
+            }
+            else
             {
                 width = SF.get();
                 height = SF.get();
@@ -210,7 +233,7 @@ public:
                 placed = SF.get();
                 steps = SF.get();
                 time = SF.get();
-                        
+
                 Real = new int* [height];
                 Field = new int* [height];
                 for (int line = 0; line < height; line++)
@@ -225,28 +248,80 @@ public:
                         Real[line][col] = SF.get();
                         Field[line][col] = SF.get();
                     }
-            }
-            catch(...)
-            {
                 SF.close();
-                return false;
+                return true;
             }
-            SF.close();
-            return true;
         }
+        SF.close();
         return false;
+    }
+};
+
+class GameStat
+{
+public:
+    int width;
+    int height;
+    int mines;
+    int steps;
+    int time;
+
+    GameStat()
+    {
+        width = height = mines = steps = time = 0;
+    }
+    GameStat(GameSession Game)
+    {
+        width = Game.width;
+        height = Game.height;
+        mines = Game.mines;
+        steps = Game.steps;
+        time = Game.time;
+    }
+};
+
+struct GameStats
+{
+    GameStat stat;
+    GameStats* next;
+
+    void Save()
+    {
+        fstream SF;
+        SF.open(StatsPath, fstream::out | fstream::trunc);
+        if (SF.is_open())
+        {
+            GameStats* Cur = this;
+            do
+            {
+                SF.put((char)(*Cur).stat.width);
+                SF.put((char)(*Cur).stat.height);
+                SF.put((char)(*Cur).stat.mines);
+                SF.put((char)(*Cur).stat.steps);
+                SF.put((char)(*Cur).stat.time);
+                Cur = (*Cur).next;
+            } while (Cur != NULL);
+        }
+        SF.close();
     }
 };
 
 GameSession Game;
 
+GameStats* Stats = NULL;
+GameStats* CurStat = NULL;
+
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-void                DrawGrid(GameSession, HDC);
+void                DrawGrid(HDC);
+void                DrawStats(HDC);
+void                DrawNew();
+void                DestroyNew();
 void                WinGame(HWND);
 void                LoseGame(HWND);
+bool                LoadStats();
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance,
@@ -294,24 +369,32 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance;
-
    int posX, posY, width, height;
    if (Game.Load())
    {
-       playing = true;
        width = Game.width * MineWidth;
        height = Game.height * MineWidth;
        posX = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
        posY = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
+       playing = true;
    }
-   else // if StatsLoad else
+   else
    {
        posX = CW_USEDEFAULT;
        posY = 0;
        width = 250;
        height = 350;
-       //NewGame
+       
+       Stats = NULL;
+       CurStat = Stats;
+       if (LoadStats())
+       {
+           DrawingStats = true;
+       }
+       else
+       {
+           NewGame = true;
+       }
    }
 
    HWND hWnd = CreateWindowW(L"MainWNDW",L"САПёР", WS_OVERLAPPEDWINDOW,
@@ -352,6 +435,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         MS11 = (HBITMAP)LoadImageA(NULL, "Minesweeper_question.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         MS13 = (HBITMAP)LoadImageA(NULL, "Minesweeper_mine.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         MS15 = (HBITMAP)LoadImageA(NULL, "Minesweeper_flag.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        hButtonClassic = CreateWindowW(L"BUTTON", L"Олдскул", WS_CHILD | BS_PUSHBUTTON,
+            25, 25, 175, 50, hWnd, (HMENU)IDM_Classic, hInst, NULL);
+        hButtonNewbie = CreateWindowW(L"BUTTON", L"Новичёк", WS_CHILD | BS_PUSHBUTTON,
+            25, 75, 175, 50, hWnd, (HMENU)IDM_Newbie, hInst, NULL);
+        hButtonAmateur = CreateWindowW(L"BUTTON", L"Любитель", WS_CHILD | BS_PUSHBUTTON,
+            25, 125, 175, 50, hWnd, (HMENU)IDM_Amateur, hInst, NULL);
+        hButtonExperienced = CreateWindowW(L"BUTTON", L"Опытный", WS_CHILD | BS_PUSHBUTTON,
+            25, 175, 175, 50, hWnd, (HMENU)IDM_Classic, hInst, NULL);
+        hButtonMySelection = CreateWindowW(L"BUTTON", L"Выбор команды", WS_CHILD | BS_PUSHBUTTON,
+            25, 225, 175, 50, hWnd, (HMENU)IDM_MySelection, hInst, NULL);
         break;
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
@@ -363,7 +456,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 playing = Game.Defuse(xPos, yPos);
             else
                 Game.Mark(xPos, yPos);
-            InvalidateRect(hWnd, NULL, false);
+            InvalidateRect(hWnd, NULL, true);
             if (playing)
             {
                 playing = Game.NotWinState();
@@ -378,46 +471,66 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_COMMAND:
         {
+            DestroyNew();
             int wmId = LOWORD(wParam);
             switch (wmId)
             {
             case IDM_Classic:
+                DestroyNew();
                 Game = GameSession(8, 8, 10);
                 playing = true;
+                NewGame = false;
+                DrawingStats = false;
                 GetWindowRect(hWnd, &Rect);
-                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
-                InvalidateRect(hWnd, NULL, false);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
+                InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_Newbie:
+                DestroyNew();
                 Game = GameSession(9, 9, 10);
                 playing = true;
+                NewGame = false;
+                DrawingStats = false;
                 GetWindowRect(hWnd, &Rect);
-                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
-                InvalidateRect(hWnd, NULL, false);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
+                InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_Amateur:
+                DestroyNew();
                 Game = GameSession(16, 16, 40);
                 playing = true;
+                NewGame = false;
+                DrawingStats = false;
                 GetWindowRect(hWnd, &Rect);
-                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
-                InvalidateRect(hWnd, NULL, false);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
+                InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_Experienced:
+                DestroyNew();
                 Game = GameSession(30, 16, 99);
                 playing = true;
+                NewGame = false;
+                DrawingStats = false;
                 GetWindowRect(hWnd, &Rect);
-                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
-                InvalidateRect(hWnd, NULL, false);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
+                InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_MySelection:
+                DestroyNew();
                 Game = GameSession(19, 19, 50);
                 playing = true;
+                NewGame = false;
+                DrawingStats = false;
                 GetWindowRect(hWnd, &Rect);
-                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
-                InvalidateRect(hWnd, NULL, false);
+                MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
+                InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_STATS:
-                //
+                DestroyNew();
+                playing = false;
+                NewGame = false;
+                DrawingStats = true;
+                InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -434,15 +547,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            DrawGrid(Game, hdc);
+            if (DrawingStats)
+            {
+                DrawStats(hdc);
+            }
+            else if (NewGame)
+            {
+                DrawNew();
+            }
+            else
+            {
+                DrawGrid(hdc);
+            }
             EndPaint(hWnd, &ps);
+            UpdateWindow(hWnd);
         }
         break;
     case WM_SIZE:
         if (playing)
         {
             GetWindowRect(hWnd, &Rect);
-            MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 58, TRUE);
+            MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
         }
         break;
     case WM_DESTROY:
@@ -473,7 +598,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     return (INT_PTR)FALSE;
 }
 
-void DrawGrid(GameSession Game, HDC hdc)
+void DrawGrid(HDC hdc)
 {
     for (int y = 0; y < Game.height; y++)
     for (int x = 0; x < Game.width; x++)
@@ -527,20 +652,126 @@ void DrawGrid(GameSession Game, HDC hdc)
         StretchBlt(hdc, MineWidth * x, MineWidth * y, MineWidth, MineWidth, hCompatibleDC, 0, 0, 76, 76, SRCCOPY);
         DeleteObject(hCompatibleDC);
     }
+    TextOutA(hdc, Game.width * MineWidth - 50, MineWidth * Game.height + 5, (to_string(Game.steps).c_str()), strlen(to_string(Game.steps).c_str()));
+}
+
+void DrawStats(HDC hdc)
+{
+    RECT rect;
+    rect.top = 0;
+    rect.left = 10;
+    rect.right = 240;
+    rect.bottom = 40;
+
+    GameStats* CurStats = Stats;
+    while (CurStats != NULL)
+    {
+        string otp = to_string(CurStats->stat.width) + " " + to_string(CurStats->stat.height) + " " + to_string(CurStats->stat.mines) + " " +
+                     to_string(CurStats->stat.steps) + " " + to_string(CurStats->stat.time);
+        int D = DrawTextA(hdc, otp.c_str(), strlen(otp.c_str()), &rect, DT_NOCLIP || DT_CALCRECT);
+        CurStats = CurStats->next;
+        rect.top += D;
+        rect.bottom += D;
+    }
+}
+
+void DrawNew()
+{
+    ShowWindow(hButtonClassic, SW_SHOW);
+    ShowWindow(hButtonNewbie, SW_SHOW);
+    ShowWindow(hButtonAmateur, SW_SHOW);
+    ShowWindow(hButtonExperienced, SW_SHOW);
+    ShowWindow(hButtonMySelection, SW_SHOW);
+}
+
+void DestroyNew()
+{
+    ShowWindow(hButtonClassic, SW_HIDE);
+    ShowWindow(hButtonNewbie, SW_HIDE);
+    ShowWindow(hButtonAmateur, SW_HIDE);
+    ShowWindow(hButtonExperienced, SW_HIDE);
+    ShowWindow(hButtonMySelection, SW_HIDE);
+
 }
 
 void WinGame(HWND wnd)
 {
     PlaySound(L"Victory.wav", NULL, SND_ASYNC | SND_FILENAME);
-    fstream SF;
-    SF.open(SavePath, fstream::trunc);
+    DeleteFileA(SavePath);
+    GameStat CurGame = GameStat(Game);
+    if (Stats == NULL)
+    {
+        CurStat = new GameStats;
+        CurStat->stat = CurGame;
+        CurStat->next = NULL;
+        Stats = CurStat;
+    }
+    else
+    {
+        GameStats* temp = new GameStats;
+        temp->stat = CurGame;
+        temp->next = NULL;
+        CurStat->next = temp;
+        CurStat = temp;
+    }
+    Stats->Save();
     MessageBoxA(wnd, "Поздравляем вас с решнием головоломки!", "Вы победили!", MB_OK);
 }
 
 void LoseGame(HWND wnd)
-{   
+{
     PlaySound(L"Lose.wav", NULL, SND_ASYNC | SND_FILENAME);
-    fstream SF;
-    SF.open(SavePath, fstream::trunc);
+    DeleteFileA(SavePath);
     MessageBoxA(wnd, "Не бойтесь попробовать свои силы ещё раз!", "Вас разорвало!", MB_OK);
+}
+
+bool LoadStats()
+{
+    fstream SF;
+    SF.open(StatsPath, fstream::in);
+    if (SF.is_open())
+    {
+        if (SF.peek() == std::ifstream::traits_type::eof())
+        {
+            SF.close();
+            return false;
+        }
+        else
+        {
+            while (SF.peek() != std::ifstream::traits_type::eof())
+            {
+                GameStat CurGame;
+                char ch;
+                SF.get(ch);
+                CurGame.width = ch;
+                SF.get(ch);
+                CurGame.height = ch;
+                SF.get(ch);
+                CurGame.mines = ch;
+                SF.get(ch);
+                CurGame.steps = ch;
+                SF.get(ch);
+                CurGame.time = ch;
+
+                if (Stats == NULL)
+                {
+                    Stats = new GameStats;
+                    Stats->stat = CurGame;
+                    Stats->next = NULL;
+                    CurStat = Stats;
+                }
+                else
+                {
+                    GameStats* temp = new GameStats;
+                    temp->stat = CurGame;
+                    temp->next = NULL;
+                    CurStat->next = temp;
+                    CurStat = temp;
+                }
+            }
+            return true;
+        }
+    }
+    SF.close();
+    return false;
 }

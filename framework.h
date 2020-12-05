@@ -11,3 +11,5 @@
 #include <tchar.h>
 #include <fstream>
 #include <mmsystem.h>
+#include <string>
+#include <ctime>
