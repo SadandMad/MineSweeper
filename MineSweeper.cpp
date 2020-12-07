@@ -11,7 +11,6 @@ HINSTANCE hInst;
 bool playing = false;
 bool DrawingStats = false;
 bool NewGame = false;
-int TimerId;
 
 HWND hButtonClassic;
 HWND hButtonNewbie;
@@ -42,6 +41,7 @@ public:
     int mines;
     int steps = 0;
     int time = 0;
+    int flags = 0;
     bool placed = false;
     int** Real;
     int** Field;
@@ -159,6 +159,7 @@ public:
             {
             case 10:
                 Field[Y][X] = 15;
+                flags++;
                 steps++;
                 break;
             case 11:
@@ -166,6 +167,7 @@ public:
                 break;
             case 15:
                 Field[Y][X] = 11;
+                flags--;
                 break;
             }
     }
@@ -174,7 +176,7 @@ public:
     {
         if (!placed)
             return true;
-        int flags = 0;
+        // int flags = 0;
         bool wrfl = false;
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
@@ -183,8 +185,8 @@ public:
                 return true;
             if (Real[y][x] != 9 && Field[y][x] == 15)
                 return true;
-            if (Field[y][x] == 15)
-                flags++;
+            /*if (Field[y][x] == 15)
+                flags++;*/
             if (Field[y][x] == 11 && Real[y][x] != 9)
                 wrfl = true;
         }
@@ -202,9 +204,10 @@ public:
             SF.put((char)width);
             SF.put((char)height);
             SF.put((char)mines);
-            SF.put((char)placed);
             SF.put((char)steps);
             SF.put((char)time);
+            SF.put((char)flags);
+            SF.put((char)placed);
 
             for (int line = 0; line < height; line++)
                 for (int col = 0; col < width; col++)
@@ -232,9 +235,10 @@ public:
                 width = SF.get();
                 height = SF.get();
                 mines = SF.get();
-                placed = SF.get();
                 steps = SF.get();
                 time = SF.get();
+                flags = SF.get();
+                placed = SF.get();
 
                 Real = new int* [height];
                 Field = new int* [height];
@@ -447,6 +451,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             25, 175, 175, 50, hWnd, (HMENU)IDM_Classic, hInst, NULL);
         hButtonMySelection = CreateWindowW(L"BUTTON", L"Выбор команды", WS_CHILD | BS_PUSHBUTTON,
             25, 225, 175, 50, hWnd, (HMENU)IDM_MySelection, hInst, NULL);
+        SetTimer(hWnd, IDT_TIMER, 1000, NULL);
         break;
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
@@ -532,7 +537,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 playing = false;
                 NewGame = false;
                 DrawingStats = true;
-                MoveWindow(hWnd, CW_USEDEFAULT, 0, 250, 350, TRUE);
+                GetWindowRect(hWnd, &Rect);
+                MoveWindow(hWnd, Rect.left, Rect.top, 250, 350, TRUE);
                 InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_ABOUT:
@@ -577,6 +583,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (playing)
             Game.Save();
         PostQuitMessage(0);
+        break;
+    case WM_TIMER:
+        if (playing)
+        {
+            Game.time++;
+            RECT Rect;
+            Rect.top = MineWidth * Game.height;
+            Rect.left = 25;
+            Rect.right = 25 + strlen(to_string(Game.time).c_str()) * 8;
+            Rect.bottom = Rect.top + 20;
+            InvalidateRect(hWnd, &Rect, true);
+        }
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -655,7 +673,10 @@ void DrawGrid(HDC hdc)
         StretchBlt(hdc, MineWidth * x, MineWidth * y, MineWidth, MineWidth, hCompatibleDC, 0, 0, 76, 76, SRCCOPY);
         DeleteObject(hCompatibleDC);
     }
-    TextOutA(hdc, Game.width * MineWidth - 50, MineWidth * Game.height + 5, (to_string(Game.steps).c_str()), strlen(to_string(Game.steps).c_str()));
+    TextOutA(hdc, 25, MineWidth* Game.height + 5, (to_string(Game.time).c_str()), strlen(to_string(Game.time).c_str()));
+    string flString = to_string(Game.flags) + "/" + to_string(Game.mines);
+    TextOutA(hdc, (MineWidth * Game.width - strlen(flString.c_str()) * 8) / 2, MineWidth * Game.height + 5, (flString.c_str()), strlen(flString.c_str()));
+    TextOutA(hdc, MineWidth * Game.width - 25 - strlen(to_string(Game.steps).c_str()) * 8, MineWidth * Game.height + 5, (to_string(Game.steps).c_str()), strlen(to_string(Game.steps).c_str()));
 }
 
 void DrawStats(HDC hdc)

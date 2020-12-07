@@ -7,6 +7,7 @@
 #define IDD_ABOUTBOX                    101
 #define IDD_MINESWEEPER_DIALOG          102
 //#define IDM_NEW                         103
+#define IDT_TIMER						103
 #define IDM_STATS                       104
 #define IDM_ABOUT                       105
 #define IDM_EXIT                        106
