@@ -40,7 +40,8 @@ public:
     int height;
     int mines;
     int steps = 0;
-    int time = 0;
+    int timeM = 0;
+    int timeS = 0;
     int flags = 0;
     bool placed = false;
     int** Real;
@@ -205,7 +206,8 @@ public:
             SF.put((char)height);
             SF.put((char)mines);
             SF.put((char)steps);
-            SF.put((char)time);
+            SF.put((char)timeM);
+            SF.put((char)timeS);
             SF.put((char)flags);
             SF.put((char)placed);
 
@@ -236,7 +238,8 @@ public:
                 height = SF.get();
                 mines = SF.get();
                 steps = SF.get();
-                time = SF.get();
+                timeM = SF.get();
+                timeS = SF.get();
                 flags = SF.get();
                 placed = SF.get();
 
@@ -270,11 +273,12 @@ public:
     int height;
     int mines;
     int steps;
-    int time;
+    int timeM;
+    int timeS;
 
     GameStat()
     {
-        width = height = mines = steps = time = 0;
+        width = height = mines = steps = timeM = timeS = 0;
     }
     GameStat(GameSession Game)
     {
@@ -282,7 +286,8 @@ public:
         height = Game.height;
         mines = Game.mines;
         steps = Game.steps;
-        time = Game.time;
+        timeM = Game.timeM;
+        timeS = Game.timeS;
     }
 };
 
@@ -304,7 +309,8 @@ struct GameStats
                 SF.put((char)(*Cur).stat.height);
                 SF.put((char)(*Cur).stat.mines);
                 SF.put((char)(*Cur).stat.steps);
-                SF.put((char)(*Cur).stat.time);
+                SF.put((char)(*Cur).stat.timeM);
+                SF.put((char)(*Cur).stat.timeS);
                 Cur = (*Cur).next;
             } while (Cur != NULL);
         }
@@ -482,6 +488,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int wmId = LOWORD(wParam);
             switch (wmId)
             {
+            case IDM_Continue:
+                if (Game.Load())
+                {
+                    DestroyNew();
+                    playing = true;
+                    NewGame = false;
+                    DrawingStats = false;
+                    GetWindowRect(hWnd, &Rect);
+                    MoveWindow(hWnd, Rect.left, Rect.top, MineWidth * Game.width + 15, MineWidth * Game.height + 88, TRUE);
+                    InvalidateRect(hWnd, NULL, true);
+                }
+                break;
             case IDM_Classic:
                 DestroyNew();
                 Game = GameSession(8, 8, 10);
@@ -533,6 +551,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_STATS:
+                if (playing)
+                    Game.Save();
                 DestroyNew();
                 playing = false;
                 NewGame = false;
@@ -587,11 +607,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
         if (playing)
         {
-            Game.time++;
+            Game.timeS++;
+            if (Game.timeS == 60)
+            {
+                Game.timeM++;
+                Game.timeS = 0;
+            }
+            string time;
+            if (Game.timeM > 0)
+                time = to_string(Game.timeM) + ":";
+            time += to_string(Game.timeS);
             RECT Rect;
             Rect.top = MineWidth * Game.height;
             Rect.left = 25;
-            Rect.right = 25 + strlen(to_string(Game.time).c_str()) * 8;
+            Rect.right = 25 + strlen(time.c_str()) * 8;
             Rect.bottom = Rect.top + 20;
             InvalidateRect(hWnd, &Rect, true);
         }
@@ -673,7 +702,11 @@ void DrawGrid(HDC hdc)
         StretchBlt(hdc, MineWidth * x, MineWidth * y, MineWidth, MineWidth, hCompatibleDC, 0, 0, 76, 76, SRCCOPY);
         DeleteObject(hCompatibleDC);
     }
-    TextOutA(hdc, 25, MineWidth* Game.height + 5, (to_string(Game.time).c_str()), strlen(to_string(Game.time).c_str()));
+    string time;
+    if (Game.timeM > 0)
+        time = to_string(Game.timeM) + ":";
+    time += to_string(Game.timeS);
+    TextOutA(hdc, 25, MineWidth* Game.height + 5, (time.c_str()), strlen(time.c_str()));
     string flString = to_string(Game.flags) + "/" + to_string(Game.mines);
     TextOutA(hdc, (MineWidth * Game.width - strlen(flString.c_str()) * 8) / 2, MineWidth * Game.height + 5, (flString.c_str()), strlen(flString.c_str()));
     TextOutA(hdc, MineWidth * Game.width - 25 - strlen(to_string(Game.steps).c_str()) * 8, MineWidth * Game.height + 5, (to_string(Game.steps).c_str()), strlen(to_string(Game.steps).c_str()));
@@ -684,14 +717,14 @@ void DrawStats(HDC hdc)
     RECT rect;
     rect.top = 0;
     rect.left = 10;
-    rect.right = 240;
+    rect.right = 230;
     rect.bottom = 40;
-
+    
     GameStats* CurStats = Stats;
     while (CurStats != NULL)
     {
-        string otp = to_string(CurStats->stat.width) + " " + to_string(CurStats->stat.height) + " " + to_string(CurStats->stat.mines) + " " +
-                     to_string(CurStats->stat.steps) + " " + to_string(CurStats->stat.time);
+        string otp = to_string(CurStats->stat.width) + " x " + to_string(CurStats->stat.height) + " | " + to_string(CurStats->stat.mines) + " мин | " +
+                     to_string(CurStats->stat.steps) + " шаг | " + to_string(CurStats->stat.timeM) + ":" + to_string(CurStats->stat.timeS);
         int D = DrawTextA(hdc, otp.c_str(), strlen(otp.c_str()), &rect, DT_NOCLIP || DT_CALCRECT);
         CurStats = CurStats->next;
         rect.top += D;
@@ -775,7 +808,9 @@ bool LoadStats()
                 SF.get(ch);
                 CurGame.steps = ch;
                 SF.get(ch);
-                CurGame.time = ch;
+                CurGame.timeM = ch;
+                SF.get(ch);
+                CurGame.timeS = ch;
 
                 if (Stats == NULL)
                 {
