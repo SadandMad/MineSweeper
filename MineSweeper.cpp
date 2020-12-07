@@ -294,13 +294,13 @@ public:
 struct GameStats
 {
     GameStat stat;
-    GameStats* next;
+    GameStats* next = NULL;
 
     void Save()
     {
         fstream SF;
         SF.open(StatsPath, fstream::out | fstream::trunc);
-        if (SF.is_open())
+        if (SF.is_open() && (this != NULL))
         {
             GameStats* Cur = this;
             do
