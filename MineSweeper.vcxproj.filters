@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Файлы ресурсов\Sprites">
-      <UniqueIdentifier>{85758eba-6afd-42e9-98ec-ffb4006b070a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -54,44 +51,52 @@
     <Image Include="MineSweeper.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_1.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_0.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_2.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_1.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_3.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_2.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_4.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_3.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_5.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_4.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_6.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_5.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_7.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_6.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_8.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_7.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_10.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_8.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_flag.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_10.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_mine.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_flag.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_question.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_mine.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="Sprites\Minesweeper_0.bmp">
-      <Filter>Файлы ресурсов\Sprites</Filter>
+    <Image Include="Minesweeper_question.bmp">
+      <Filter>Файлы ресурсов</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Lose.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="Victory.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
   </ItemGroup>
 </Project>

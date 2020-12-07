@@ -80,7 +80,7 @@ public:
         {
             int posX = rand() % width;
             int posY = rand() % height;
-            if (abs(posX - X) > 1 || abs(posY - Y) > 1)//((width*height <= 100 && posX != X && posY != Y) || (width * height > 100 && (abs(posX-X)>1 || abs(posY - Y) > 1)))
+            if (abs(posX - X) > 1 || abs(posY - Y) > 1) //((width*height <= 100 && posX != X && posY != Y) || (width * height > 100 && (abs(posX-X)>1 || abs(posY - Y) > 1)))
             {
                 if (Real[posY][posX] != 9)
                 {
@@ -172,6 +172,8 @@ public:
 
     bool NotWinState()
     {
+        if (!placed)
+            return true;
         int flags = 0;
         bool wrfl = false;
         for (int y = 0; y < height; y++)
@@ -530,6 +532,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 playing = false;
                 NewGame = false;
                 DrawingStats = true;
+                MoveWindow(hWnd, CW_USEDEFAULT, 0, 250, 350, TRUE);
                 InvalidateRect(hWnd, NULL, true);
                 break;
             case IDM_ABOUT:
