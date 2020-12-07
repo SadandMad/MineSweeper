@@ -171,46 +171,46 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="MineSweeper.ico" />
-    <Image Include="Minesweeper_0.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_1.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_10.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_2.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_3.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_4.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_5.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_6.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_7.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_8.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_flag.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_mine.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
-    <Image Include="Minesweeper_question.bmp">
-      <DeploymentContent>true</DeploymentContent>
-    </Image>
     <Image Include="small.ico" />
+    <Image Include="Sprites\Minesweeper_0.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_1.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_10.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_2.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_3.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_4.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_5.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_6.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_7.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_8.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_flag.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_mine.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
+    <Image Include="Sprites\Minesweeper_question.bmp">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Media Include="Lose.wav">

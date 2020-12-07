@@ -3,8 +3,8 @@
 #include "MineSweeper.h"
 using namespace std;
 
-#define SavePath	"\SaveGame.msg"
-#define StatsPath	"\Stats.mst"
+#define SavePath	"SaveGame.msg"
+#define StatsPath	"Stats.mst"
 #define MineWidth   30
 
 HINSTANCE hInst;
@@ -433,20 +433,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message)
     {
     case WM_CREATE:
-        MS0  = (HBITMAP)LoadImageA(NULL, "Minesweeper_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS1  = (HBITMAP)LoadImageA(NULL, "Minesweeper_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS2  = (HBITMAP)LoadImageA(NULL, "Minesweeper_2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS3  = (HBITMAP)LoadImageA(NULL, "Minesweeper_3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS4  = (HBITMAP)LoadImageA(NULL, "Minesweeper_4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS5  = (HBITMAP)LoadImageA(NULL, "Minesweeper_5.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS6  = (HBITMAP)LoadImageA(NULL, "Minesweeper_6.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS7  = (HBITMAP)LoadImageA(NULL, "Minesweeper_7.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS8  = (HBITMAP)LoadImageA(NULL, "Minesweeper_8.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS9  = (HBITMAP)LoadImageA(NULL, "Minesweeper_mine.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS10 = (HBITMAP)LoadImageA(NULL, "Minesweeper_10.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS11 = (HBITMAP)LoadImageA(NULL, "Minesweeper_question.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS13 = (HBITMAP)LoadImageA(NULL, "Minesweeper_mine.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        MS15 = (HBITMAP)LoadImageA(NULL, "Minesweeper_flag.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS0  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS1  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS2  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS3  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS4  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS5  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_5.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS6  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_6.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS7  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_7.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS8  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_8.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS9  = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_mine.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS10 = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_10.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS11 = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_question.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS13 = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_mine.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        MS15 = (HBITMAP)LoadImageA(NULL, "Sprites/Minesweeper_flag.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         hButtonClassic = CreateWindowW(L"BUTTON", L"Олдскул", WS_CHILD | BS_PUSHBUTTON,
             25, 25, 175, 50, hWnd, (HMENU)IDM_Classic, hInst, NULL);
         hButtonNewbie = CreateWindowW(L"BUTTON", L"Новичёк", WS_CHILD | BS_PUSHBUTTON,
