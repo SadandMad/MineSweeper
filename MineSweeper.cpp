@@ -387,13 +387,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
        width = Game.width * MineWidth;
        height = Game.height * MineWidth;
        posX = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
-       posY = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
+       posY = (GetSystemMetrics(SM_CYSCREEN) - height) / 2 - 100;
        playing = true;
    }
    else
    {
-       posX = CW_USEDEFAULT;
-       posY = 0;
+       posX = GetSystemMetrics(SM_CXSCREEN) / 2 - 125;
+       posY = GetSystemMetrics(SM_CYSCREEN) / 2 - 250;
        width = 250;
        height = 350;
        
@@ -614,9 +614,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 Game.timeS = 0;
             }
             string time;
-            if (Game.timeM > 0)
+            if (Game.timeM > 9)
                 time = to_string(Game.timeM) + ":";
-            time += to_string(Game.timeS);
+            else if (Game.timeM > 0)
+                time = "0" + to_string(Game.timeM) + ":";
+            if (Game.timeS < 10)
+                time += "0" + to_string(Game.timeS);
+            else
+                time += to_string(Game.timeS);
             RECT Rect;
             Rect.top = MineWidth * Game.height;
             Rect.left = 25;
@@ -703,9 +708,14 @@ void DrawGrid(HDC hdc)
         DeleteObject(hCompatibleDC);
     }
     string time;
-    if (Game.timeM > 0)
+    if (Game.timeM > 9)
         time = to_string(Game.timeM) + ":";
-    time += to_string(Game.timeS);
+    else if (Game.timeM > 0)
+        time = "0" + to_string(Game.timeM) + ":";
+    if (Game.timeS < 10)
+        time += "0" + to_string(Game.timeS);
+    else
+        time += to_string(Game.timeS);
     TextOutA(hdc, 25, MineWidth* Game.height + 5, (time.c_str()), strlen(time.c_str()));
     string flString = to_string(Game.flags) + "/" + to_string(Game.mines);
     TextOutA(hdc, (MineWidth * Game.width - strlen(flString.c_str()) * 8) / 2, MineWidth * Game.height + 5, (flString.c_str()), strlen(flString.c_str()));
@@ -723,8 +733,17 @@ void DrawStats(HDC hdc)
     GameStats* CurStats = Stats;
     while (CurStats != NULL)
     {
+        string time;
+        if (CurStats->stat.timeM > 9)
+            time = to_string(CurStats->stat.timeM) + ":";
+        else if (CurStats->stat.timeM > 0)
+            time = "0" + to_string(CurStats->stat.timeM) + ":";
+        if (CurStats->stat.timeS < 10)
+            time += "0" + to_string(CurStats->stat.timeS);
+        else
+            time += to_string(CurStats->stat.timeS);
         string otp = to_string(CurStats->stat.width) + " x " + to_string(CurStats->stat.height) + " | " + to_string(CurStats->stat.mines) + " мин | " +
-                     to_string(CurStats->stat.steps) + " шаг | " + to_string(CurStats->stat.timeM) + ":" + to_string(CurStats->stat.timeS);
+                     to_string(CurStats->stat.steps) + " шаг | " + time;
         int D = DrawTextA(hdc, otp.c_str(), strlen(otp.c_str()), &rect, DT_NOCLIP || DT_CALCRECT);
         CurStats = CurStats->next;
         rect.top += D;
