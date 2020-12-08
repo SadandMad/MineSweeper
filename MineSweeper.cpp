@@ -730,7 +730,10 @@ void DrawStats(HDC hdc)
     rect.right = 230;
     rect.bottom = 40;
     
+    if (Stats == NULL)
+        LoadStats();
     GameStats* CurStats = Stats;
+    
     while (CurStats != NULL)
     {
         string time;
@@ -831,7 +834,7 @@ bool LoadStats()
                 SF.get(ch);
                 CurGame.timeS = ch;
 
-                if (Stats == NULL)
+                if (Stats == NULL && !LoadStats())
                 {
                     Stats = new GameStats;
                     Stats->stat = CurGame;
