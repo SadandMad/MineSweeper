@@ -834,7 +834,7 @@ bool LoadStats()
                 SF.get(ch);
                 CurGame.timeS = ch;
 
-                if (Stats == NULL && !LoadStats())
+                if (Stats == NULL)
                 {
                     Stats = new GameStats;
                     Stats->stat = CurGame;
